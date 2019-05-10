@@ -1,3 +1,6 @@
 Pillow
 reverse_geocode
 geopy
+
+# reverse_geocode needs this but doesn't list it
+future

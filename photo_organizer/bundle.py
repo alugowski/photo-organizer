@@ -142,12 +142,7 @@ class Bundle:
 
         self._ensure_exif()
 
-        shooting_time = self.interesting_exif.get("shooting_date_unix")
-        if shooting_time:
-            print("Original shooting time for {}: {}".format(self, shooting_time))
-            return shooting_time
-
-        return None
+        return self.interesting_exif.get("shooting_date_unix", None)
 
     def get_date(self):
         """
@@ -155,3 +150,12 @@ class Bundle:
         """
         dt = datetime.fromtimestamp(self.get_shooting_time() or self.get_oldest_mtime())
         return dt.strftime(DATE_FORMAT)
+
+    def get_lat_long(self):
+        """
+        :rtype: tuple[float, float]
+        :return: latitude, longitude pair as specified in EXIF data, or None if not found
+        """
+        self._ensure_exif()
+
+        return self.interesting_exif.get("lat_long", None)

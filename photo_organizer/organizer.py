@@ -17,6 +17,8 @@ import logging
 import os
 from collections import defaultdict
 
+from .geo import get_best_static_label
+
 
 def get_directory(bundle):
     """
@@ -25,8 +27,19 @@ def get_directory(bundle):
     :param bundle: photo bundle
     :return: subdirectory name
     """
+    parts = []
+
+    # look up date
     path_date = bundle.get_date()
-    return " - ".join([path_date])
+    parts.append(path_date)
+
+    # look up geo
+    lat_long = bundle.get_lat_long()
+    if lat_long:
+        geo_label = get_best_static_label(lat_long)
+        parts.append(geo_label)
+
+    return " - ".join(parts)
 
 
 def organize_into_directories(bundles, min_dir_count):

@@ -75,6 +75,9 @@ def get_labeled_exif(path, tag_whitelist=None):
     # noinspection PyProtectedMember
     exif = image._getexif()
 
+    if not exif:
+        return {}
+
     # convert numeric tags to labeled strings
     labeled_exif = {TAGS.get(key): value for key, value in exif.items()
                     if tag_whitelist is None or TAGS.get(key) in tag_whitelist}

@@ -26,15 +26,15 @@ def get_distance(coords1, coords2):
     return geopy.distance.distance(coords1, coords2).meters
 
 
-def get_best_static_label(coordinates):
+def get_best_static_label(lat_long):
     """
     Get the best label we can from a static database.
 
-    :param tuple[float, float] coordinates: a tuple of (latitude, longitude)
+    :param tuple[float, float] lat_long: a tuple of (latitude, longitude)
     :rtype: str
     :return: a city string
     """
-    loc = reverse_geocode.search((coordinates,))
+    loc = reverse_geocode.search((lat_long,))
     if not loc:
         return None
 
@@ -49,12 +49,12 @@ def get_best_static_label(coordinates):
     return None
 
 
-def get_geo_label(coordinates):
+def get_geo_label(lat_long):
     """
     Get the best geographic label for the given coordinates.
 
-    :param tuple[float, float] coordinates: a tuple of (latitude, longitude)
+    :param tuple[float, float] lat_long: a tuple of (latitude, longitude)
     :rtype: str
     :return: a string to describe the lat/long, or None
     """
-    return get_best_static_label(coordinates)
+    return get_best_static_label(lat_long)
