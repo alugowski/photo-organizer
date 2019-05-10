@@ -17,6 +17,8 @@ import os
 import shutil
 from datetime import datetime
 
+from .exif import get_interesting_exif_tags
+
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -60,6 +62,7 @@ class Bundle:
         self.paths = [path]
         self.base, extension = os.path.splitext(path)
         self.extensions = [extension.lstrip(".")]
+        self.interesting_exif = None
 
     def add_maybe(self, path):
         """
@@ -114,20 +117,36 @@ class Bundle:
         """
         return min([os.path.getmtime(path) for path in self.paths])
 
+    def _ensure_exif(self):
+        """
+        Find and read EXIF data, if there's an supported file in this bundle.
+
+        Result is stored in `self.interesting_exif` and only populated on first call. OK to call multiple times.
+        """
+        if self.interesting_exif is None:
+            # find a file that has EXIF
+            for path in self.paths:
+                _, extension = os.path.splitext(path)
+                extension = extension.lower()
+                if extension in [".jpg", ".jpeg"]:
+                    self.interesting_exif = get_interesting_exif_tags(path)
+                    return
+
+            # no supported files in this bundle
+            self.interesting_exif = {}
+
     def get_shooting_time(self):
         """
         :return: unix timestamp of the original shooting date as specified in EXIF data, or None if not found
         """
-        # find a file that has EXIF
-        for path in self.paths:
-            _, extension = os.path.splitext(path)
-            extension = extension.lower()
-            if extension in [".jpg", ".jpeg"]:
-                # TODO: get original shooting date from EXIF:
-                #   https://stackoverflow.com/questions/23064549/get-date-and-time-when-photo-was-taken-from-exif-data-using-pil
-                return None
 
-        # no files support EXIF
+        self._ensure_exif()
+
+        shooting_time = self.interesting_exif.get("shooting_date_unix")
+        if shooting_time:
+            print("Original shooting time for {}: {}".format(self, shooting_time))
+            return shooting_time
+
         return None
 
     def get_date(self):

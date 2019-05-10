@@ -1,2 +1,3 @@
+Pillow
 reverse_geocode
 geopy
